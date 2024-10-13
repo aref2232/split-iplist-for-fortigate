@@ -3,12 +3,12 @@ name: Split Firehol List
 on:
   push:
     branches:
-      - main  # Change to your default branch
+      - main
     paths:
-      - 'firehol_anonymous.netset'  # Trigger on changes to this file
+      - 'firehol_anonymous.netset'
   schedule:
-    - cron: '0 12 * * *'  # Run every day at 12 PM UTC
-  workflow_dispatch:  # Allows manual triggering of the workflow
+    - cron: '0 12 * * *'
+  workflow_dispatch:
 
 jobs:
   split:
@@ -24,7 +24,7 @@ jobs:
 
       - name: Remove old files
         run: |
-          rm -rf firewall_lists/*  # Remove all files in the firewall_lists directory
+          rm -rf firewall_lists/*
 
       - name: Split the file
         run: |
@@ -36,5 +36,7 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add firewall_lists/*
-          git commit -m "Update Firehol list files"
-          git push https://x-access-token:${{ secrets.to1 }}@github.com/aref2232/split-iplist-for-fortigate.git
+          git commit -m "Update Firehol list files" || echo "No changes to commit"
+          git push origin main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
