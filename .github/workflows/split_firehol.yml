@@ -1,42 +1,43 @@
 name: Split Firehol List
 
 on:
+  schedule:
+    - cron: '0 0,12 * * *'  # Runs at 12 AM and 12 PM UTC
   push:
     branches:
       - main
-    paths:
-      - 'firehol_anonymous.netset'
-  schedule:
-    - cron: '0 12 * * *'
-  workflow_dispatch:
+  workflow_dispatch:  # Allows manual triggering
 
 jobs:
-  split:
+  split_and_upload:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Set up Git
+        run: |
+          git config --global user.email "you@example.com"  # Replace with your email
+          git config --global user.name "Your Name"          # Replace with your name
+
       - name: Download Firehol List
         run: |
-          curl -s -o firehol_anonymous.netset https://raw.githubusercontent.com/firehol/blocklist-ipsets/refs/heads/master/firehol_anonymous.netset
+          wget -O firehol_anonymous.netset "https://raw.githubusercontent.com/firehol/blocklist-ipsets/refs/heads/master/firehol_anonymous.netset"
 
-      - name: Remove old files
+      - name: Split the File
         run: |
-          rm -rf firewall_lists/*
+          MAX_LINES=120000
+          OUTPUT_PREFIX="firehol_anonymous_split_"
+          split -l "$MAX_LINES" "firehol_anonymous.netset" "${OUTPUT_PREFIX}"
 
-      - name: Split the file
+      - name: Add and Commit Changes
         run: |
-          mkdir -p firewall_lists
-          split -l 120000 firehol_anonymous.netset firewall_lists/firehol_anonymous_
-
-      - name: Commit and Push changes
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add firewall_lists/*
+          git add firehol_anonymous_split_*
           git commit -m "Update Firehol list files" || echo "No changes to commit"
-          git push origin main
+
+      - name: Push Changes
         env:
-          GITHUB_TOKEN: ${{ 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 }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Use the provided GITHUB_TOKEN
+        run: |
+          git push origin main
