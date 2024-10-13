@@ -1,0 +1,35 @@
+name: Split Firehol List
+
+on:
+  push:
+    branches:
+      - main  # Change to your default branch
+    paths:
+      - 'firehol_anonymous.netset'  # Trigger on changes to this file
+
+jobs:
+  split:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Download Firehol List
+        run: |
+          curl -s -o firehol_anonymous.netset https://raw.githubusercontent.com/firehol/blocklist-ipsets/refs/heads/master/firehol_anonymous.netset
+
+      - name: Split the file
+        run: |
+          mkdir -p firewall_lists
+          split -l 120000 firehol_anonymous.netset firewall_lists/firehol_anonymous_
+
+      - name: Commit and Push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add firewall_lists/*
+          git commit -m "Split Firehol list into multiple files"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
