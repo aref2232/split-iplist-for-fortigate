@@ -39,4 +39,4 @@ jobs:
           git commit -m "Update Firehol list files" || echo "No changes to commit"
           git push origin main
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ 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 }}
