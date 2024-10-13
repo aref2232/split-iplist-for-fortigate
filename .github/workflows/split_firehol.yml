@@ -37,6 +37,4 @@ jobs:
           git config --local user.name "GitHub Action"
           git add firewall_lists/*
           git commit -m "Update Firehol list files"
-          git push
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          git push https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/aref2232/split-iplist-for-fortigate.git
