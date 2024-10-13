@@ -36,9 +36,8 @@ jobs:
           git add firehol_anonymous_split_*
           git commit -m "Update Firehol list files" || echo "No changes to commit"
 
-   - name: Push Changes
-     env:
-       MY_GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}  # Use your personal access token
-     run: |
-       git push https://x-access-token:${MY_GITHUB_TOKEN}@github.com/aref2232/split-iplist-for-fortigate.git HEAD:main
-
+      - name: Push Changes
+        env:
+          MY_GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}  # Use your personal access token
+        run: |
+          git push https://x-access-token:${MY_GITHUB_TOKEN}@github.com/aref2232/split-iplist-for-fortigate.git HEAD:main
