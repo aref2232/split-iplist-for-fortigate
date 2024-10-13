@@ -6,6 +6,9 @@ on:
       - main  # Change to your default branch
     paths:
       - 'firehol_anonymous.netset'  # Trigger on changes to this file
+  schedule:
+    - cron: '0 12 * * *'  # Run every day at 12 PM UTC
+  workflow_dispatch:  # Allows manual triggering of the workflow
 
 jobs:
   split:
@@ -19,6 +22,10 @@ jobs:
         run: |
           curl -s -o firehol_anonymous.netset https://raw.githubusercontent.com/firehol/blocklist-ipsets/refs/heads/master/firehol_anonymous.netset
 
+      - name: Remove old files
+        run: |
+          rm -rf firewall_lists/*  # Remove all files in the firewall_lists directory
+
       - name: Split the file
         run: |
           mkdir -p firewall_lists
@@ -29,7 +36,7 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add firewall_lists/*
-          git commit -m "Split Firehol list into multiple files"
+          git commit -m "Update Firehol list files"
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
